@@ -1,0 +1,122 @@
+:root {
+    color-scheme: light dark;
+    --green: #00b755;
+    --yellow: #daaf38;
+    --red: #ca4754;
+    --black: #222;
+    --light-gray: #999;
+    --dark-gray: #666;
+}
+
+body {
+    background-color: light-dark(white, var(--black));
+    font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    display: grid;
+    justify-content: center;
+    padding: 2.5% 5%;
+}
+
+section {
+    max-width: 500px;
+}
+
+#game > time {
+    color: var(--yellow);
+}
+
+#game > p {
+    margin: 0.5em 0 0;
+    text-align: left;
+    line-height: 1.25em;
+}
+
+#game > input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -999;
+    opacity: 0;
+    pointer-events: none;
+}
+
+my-word {
+    position: relative;
+    display: inline-block;
+
+    &.marked::before {
+        content: '';
+        position: absolute;
+        bottom: 0px;
+        left: 0;
+        width: 100%;
+        height: 1.5px;
+        background-color: var(--red);
+    }
+}
+
+my-letter {
+    color: var(--dark-gray);
+    position: relative;
+    &.current::before {
+        content: '|';
+        position: absolute;
+        left: -55%;
+        color: var(--yellow);
+        animation: blink 1s infinite;
+    }
+
+    &.current.is-last::before {
+        left: 65%;
+    }
+
+    &.correct {
+        color: var(--green);
+    }
+
+    &.incorrect {
+        color: var(--red);
+    }
+}
+
+@keyframes blink {
+    0%, 25% {
+        opacity: 0;
+    }
+    75% {
+        opacity: 1;
+    }
+}
+
+#result {
+    display: flex;
+    flex-direction: column;
+    text-justify: left;
+    font-size: 1.5em;
+}
+
+#result > h2 {
+    margin: 0;
+    color: var(--yellow);
+}
+
+#result > p {
+    margin: 0.5em 0 0;
+}
+
+#result > button {
+    display: inline-block;
+    margin: 2em auto 0;
+    padding: 0.5em 2em;
+    background-color: var(--yellow);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.15s ease-in, transform 0.3s ease-in;
+
+    &:hover {
+        opacity: 1;
+        scale: 110%;
+    }
+}
