@@ -1,36 +1,82 @@
 :root {
     color-scheme: light dark;
-    --green: #00b755;
+    --light-green: #39f792d3;
+    --dark-green: #05a910d3;
     --yellow: #daaf38;
-    --red: #ca4754;
-    --black: #222;
-    --light-gray: #999;
-    --dark-gray: #666;
+    --red: #e91a2e;
+    --black: #333;
+    --white: #f0f0f0;
+    --light-gray: #aaa;
+    --dark-gray: #555;
+    font-size: 16px;
+    font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 body {
-    background-color: light-dark(white, var(--black));
-    font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: light-dark(var(--white), var(--black));
     display: grid;
     justify-content: center;
     padding: 2.5% 5%;
 }
 
 section {
-    max-width: 500px;
+    max-width: 600px;
 }
 
-#game > time {
+#settings {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    background-color: light-dark(var(--light-gray), #222);
+    margin: 0 auto;
+    padding: 0.25em 1em;
+    border-radius: 0.5em;
+}
+
+#settings > div.spacer {
+    height: auto;
+    width: 0.25em;
+    margin: 0 1em;
+    background-color: var(--black);
+}
+
+#settings > div > button,
+#settings > nav > button {
+    background-color: transparent;
+    border: none;
+    font-family: monospace, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    color: var(--light-gray);
+    cursor: pointer;
+    font-size: 1.0125em;
+
+    &.active {
+        color: var(--yellow) !important;
+    }
+
+    &:hover {
+        color: white;
+    }
+}
+
+#game {
+    gap: 2em;
+}
+
+#game > main {
+    font-size: 1.25em;
+}
+
+#game > main > time {
     color: var(--yellow);
 }
 
-#game > p {
+#game > main > p {
     margin: 0.5em 0 0;
     text-align: left;
     line-height: 1.25em;
 }
 
-#game > input {
+#game > main > input {
     position: absolute;
     top: 0;
     left: 0;
@@ -55,7 +101,7 @@ my-word {
 }
 
 my-letter {
-    color: var(--dark-gray);
+    color: light-dark(var(--dark-gray), var(--light-gray));
     position: relative;
     &.current::before {
         content: '|';
@@ -70,7 +116,7 @@ my-letter {
     }
 
     &.correct {
-        color: var(--green);
+        color: light-dark(var(--dark-green), var(--light-green));
     }
 
     &.incorrect {
@@ -108,7 +154,6 @@ my-letter {
     margin: 2em auto 0;
     padding: 0.5em 2em;
     background-color: var(--yellow);
-    color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;

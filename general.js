@@ -1,23 +1,46 @@
 import {words as INITIAL_WORDS} from './words.js';
 
-const $time = document.querySelector('#game>time');
-const $paragraph = document.querySelector('#game>p');
-const $input = document.querySelector('#game>input');
+//Get HTML elements
+const $time = document.querySelector('#game>main>time');
+const $paragraph = document.querySelector('#game>main>p');
+const $input = document.querySelector('#game>main>input');
 const $game = document.querySelector('#game');
 const $result = document.querySelector('#result');
 const $resetButton = document.querySelector('#result>button')
+const $wmp = $result.querySelector('#wpm>span');
+const $accuracy = $result.querySelector('#accuracy>span');
+const $options = document.querySelector('#options');
+const $settings = document.querySelector('#settings');
+const $settingsValues = $settings.querySelector('div[name="values"]');
+const $timeSettings = $options.querySelector('button[name="time"]');
+const $wordsSettings = $options.querySelector('button[name="words"]');
 
-const INITIAL_TIME = 10;
+//Game Modifiers
+const INITIAL_TIME = 30;
 const TEXT_LENGTH = 20;
 
+//Game atributes
 let words = [];
 let currentTime = INITIAL_TIME;
 let playing = false;
 let intervalID
 
-initEvents();
-initGame();
+//Setting attributes
+let timeValues = [
+    {value: 15, style: null},
+    {value: 30, style: 'active'},
+    {value: 50, style: null},
+    {value: 'custom', style: null, custom: null}
+];
 
+let wordValues = [
+    {value: 20, style: 'active'},
+    {value: 30, style: null},
+    {value: 50, style: null},
+    {value: 'custom', style: null, custom: null}
+];
+
+//Game functions
 function initGame() {
     currentTime = INITIAL_TIME;
     $time.textContent = currentTime;
@@ -44,11 +67,15 @@ function initEvents() {
         $input.focus();
         if(!playing) {
             playing = true;
+            $settings.style.pointerEvents = 'none';
+            $settings.style.opacity = '0.6';
             intervalID = setInterval(() => {
                 currentTime--;
                 $time.textContent = currentTime;
                 if(currentTime <= 0) {
                     playing = false;
+                    $settings.style.pointerEvents = '';
+                    $settings.style.opacity = '1';
                     clearInterval(intervalID);
                     gameOver();
                 }
@@ -58,7 +85,15 @@ function initEvents() {
 
     $input.addEventListener('keydown', handleKeyDown);
     $input.addEventListener('keyup', handleKeyUp);
-    $resetButton.addEventListener('click', initGame)
+    $resetButton.addEventListener('click', initGame);
+    $timeSettings.addEventListener('click', () => {
+        toggleSettings($timeSettings);
+        setValues(timeValues)
+    });
+    $wordsSettings.addEventListener('click', () => {
+        toggleSettings($wordsSettings);
+        setValues(wordValues)
+    });
 }
 
 function handleKeyDown(event) {
@@ -112,6 +147,8 @@ function handleKeyUp(event) {
         return
     }
 
+    if ($currentLetter.classList.contains('is-last')) return;
+
     (key === $currentLetter.textContent) ? 
         $currentLetter.classList.add('correct') : 
         $currentLetter.classList.add('incorrect');
@@ -137,14 +174,49 @@ function handleKeyUp(event) {
 function gameOver() {
     playing = false;
     clearInterval(intervalID)
+    
     $game.style.display = 'none';
     $result.style.display = 'flex';
 
-    const $wmp = $result.querySelector('#wpm>span');
-    const $accuracy = $result.querySelector('#accuracy>span');
-
-    $wmp.textContent = $game.querySelectorAll('my-word.correct').length*(60/INITIAL_TIME);
     let correct = $game.querySelectorAll('my-word.correct').length
     let total = $game.querySelectorAll('my-word.correct').length + $game.querySelectorAll('my-word.marked').length
     $accuracy.textContent = `${(total) ? ((correct/total)*100).toFixed(2) : 0}%`;
+    $wmp.textContent = $game.querySelectorAll('my-word.correct').length*(60/INITIAL_TIME);
 }
+
+//Settings handler
+function setValues(array) {
+    $settingsValues.innerHTML = '';
+    array.forEach((value, index) => {
+        let $elem = document.createElement('button');
+        if (value.value === 'custom') {
+            $elem.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i>';
+        }
+        else $elem.textContent = value.value;
+        if (value.style !== null) $elem.classList.add(value.style);
+        $elem.addEventListener('click', () => setOptionActive($elem, array, index));
+
+        $settingsValues.appendChild($elem);
+    });
+}
+
+function setOptionActive($toActivate, array, index) {
+    $toActivate.parentElement.querySelector('button.active').classList.remove('active');
+    $toActivate.classList.add('active');
+    array.forEach((value, i) => (i === index) ? value.style = 'active': value.style = null);
+}
+
+function initSettings() {
+    $options.querySelector('button[name="time"]').classList.add('active');
+    setValues(timeValues);
+}
+
+function toggleSettings($setting) {
+    $setting.parentElement.querySelector('.active').classList.remove('active');
+    $setting.classList.add('active');
+}
+
+//Logic
+initEvents();
+initSettings();
+initGame();
