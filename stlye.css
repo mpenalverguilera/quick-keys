@@ -40,7 +40,7 @@ section {
     background-color: var(--black);
 }
 
-#settings > div > button,
+#settings > div > div > button,
 #settings > nav > button {
     background-color: transparent;
     border: none;

@@ -15,54 +15,113 @@ const $settingsValues = $settings.querySelector('div[name="values"]');
 const $timeSettings = $options.querySelector('button[name="time"]');
 const $wordsSettings = $options.querySelector('button[name="words"]');
 
-//Game Modifiers
-const INITIAL_TIME = 30;
-const TEXT_LENGTH = 20;
+//Setting attributes
+let timeValues = [15, 30, 60, 100];
+let wordValues = [20, 30, 50, 100];
+
+
+//Settings handlers
+function initSettings() {
+    $options.querySelector('button[name="time"]').classList.add('active');
+    //Add option handlers
+    $timeSettings.addEventListener('click', () => setOptionActive($timeSettings));
+    $wordsSettings.addEventListener('click', () => setOptionActive($wordsSettings));
+    $settingsValues.appendChild(createWordSelector(wordValues));
+    $settingsValues.appendChild(createTimeSelector(timeValues));
+
+}
+
+function createWordSelector(values) {
+    const $wordSelector = document.createElement('div');
+    $wordSelector.setAttribute('name', 'words');
+    values.forEach((value, index) => {
+        const $elem = document.createElement('button');
+        
+        if (index === values.length - 1) {
+            $elem.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i>';
+            $elem.addEventListener('click', () => {
+                setValueActive($elem);
+                value = changeCustomValue(values);
+                setRandomText($paragraph, value, INITIAL_WORDS, true);
+            });            
+        }
+        else {
+            $elem.textContent = value;
+            if (index === 0) $elem.classList.add('active');
+            $elem.addEventListener('click', () => {
+                setValueActive($elem);
+                setRandomText($paragraph, value, INITIAL_WORDS, true);
+            });            
+        }
+        $wordSelector.appendChild($elem);
+    });
+    $wordSelector.style.display = 'none';
+    return $wordSelector;
+}
+
+function createTimeSelector(values) {
+    const $timeSelector = document.createElement('div');
+    $timeSelector.setAttribute('name', 'time');
+    values.forEach((value, index) => {
+        const $elem = document.createElement('button');
+        
+        if (index === values.length - 1) {
+            $elem.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i>';
+            $elem.addEventListener('click', () => {
+                setValueActive($elem);
+                value = changeCustomValue(values);
+                actualizeTime(value);
+            });            
+        }
+        else {
+            $elem.textContent = value;
+            if (index === 0) $elem.classList.add('active');
+            $elem.addEventListener('click', () => {
+                setValueActive($elem);
+                actualizeTime(value);
+            });            
+        }
+        $timeSelector.appendChild($elem);
+    });
+    return $timeSelector;
+}
+
+function changeCustomValue(array) {
+    const newValue = prompt('Enter a new value');
+    if (newValue === null) return 0;
+    array[array.length - 1] = newValue;
+    return newValue;
+}
+
+function setOptionActive($toActivate) {
+    setValueActive($toActivate);
+    $settingsValues.querySelectorAll('div').forEach((div) => div.style.display = 'none');
+    $settingsValues.querySelector(`div[name="${$toActivate.getAttribute('name')}"]`).style.display = '';
+}
+
+function setValueActive($toActivate) {
+    const $active = $toActivate.parentElement.querySelector('button.active')
+    if ($active !== null) $active.classList.remove('active');
+    $toActivate.classList.add('active');
+}
 
 //Game atributes
 let words = [];
-let currentTime = INITIAL_TIME;
+let initial_time;
+let currentTime;
 let playing = false;
 let intervalID
 
-//Setting attributes
-let timeValues = [
-    {value: 15, style: null},
-    {value: 30, style: 'active'},
-    {value: 50, style: null},
-    {value: 'custom', style: null, custom: null}
-];
-
-let wordValues = [
-    {value: 20, style: 'active'},
-    {value: 30, style: null},
-    {value: 50, style: null},
-    {value: 'custom', style: null, custom: null}
-];
-
 //Game functions
 function initGame() {
-    currentTime = INITIAL_TIME;
-    $time.textContent = currentTime;
     $game.style.display = 'grid';
     $result.style.display = 'none';
 
-    words = INITIAL_WORDS.toSorted(() => Math.random() - 0.5).slice(0, TEXT_LENGTH);
-    $paragraph.innerHTML = words.map((word, index) => 
-        {
-            const letters = word.split('')
-            return `<my-word>${letters.map((letter, index) => 
-                `<my-letter>${letter}</my-letter>`)
-                .join('')}</my-word>`
-        }
-    ).join(' ');
-
-    const $firstWord = $paragraph.querySelector('my-word');
-    $firstWord.classList.add('current');
-    $firstWord.querySelector('my-letter').classList.add('current');
+    actualizeTime(timeValues[0]);
+    setRandomText($paragraph, wordValues[0], INITIAL_WORDS, true);
 }
 
-function initEvents() {
+function initGameEvents() {
      document.addEventListener('keydown', () => {
         $input.focus();
         if(!playing) {
@@ -86,17 +145,10 @@ function initEvents() {
     $input.addEventListener('keydown', handleKeyDown);
     $input.addEventListener('keyup', handleKeyUp);
     $resetButton.addEventListener('click', initGame);
-    $timeSettings.addEventListener('click', () => {
-        toggleSettings($timeSettings);
-        setValues(timeValues)
-    });
-    $wordsSettings.addEventListener('click', () => {
-        toggleSettings($wordsSettings);
-        setValues(wordValues)
-    });
 }
 
 function handleKeyDown(event) {
+    event.preventDefault();
     const { key } = event;
 
     if(key !== 'Backspace') return;
@@ -129,6 +181,7 @@ function handleKeyDown(event) {
 }
 
 function handleKeyUp(event) {
+    event.preventDefault();
     const { key } = event;
    
     if (key === 'Backspace') return;
@@ -181,42 +234,37 @@ function gameOver() {
     let correct = $game.querySelectorAll('my-word.correct').length
     let total = $game.querySelectorAll('my-word.correct').length + $game.querySelectorAll('my-word.marked').length
     $accuracy.textContent = `${(total) ? ((correct/total)*100).toFixed(2) : 0}%`;
-    $wmp.textContent = $game.querySelectorAll('my-word.correct').length*(60/INITIAL_TIME);
+    $wmp.textContent = $game.querySelectorAll('my-word.correct').length*(60/initial_time);
 }
 
-//Settings handler
-function setValues(array) {
-    $settingsValues.innerHTML = '';
-    array.forEach((value, index) => {
-        let $elem = document.createElement('button');
-        if (value.value === 'custom') {
-            $elem.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i>';
-        }
-        else $elem.textContent = value.value;
-        if (value.style !== null) $elem.classList.add(value.style);
-        $elem.addEventListener('click', () => setOptionActive($elem, array, index));
 
-        $settingsValues.appendChild($elem);
-    });
+//Web modifiers
+function setRandomText($element, numberWords, possibleWords, current) {
+    $element.innerHTML = '';
+    words = (possibleWords.length >= numberWords) ? 
+    possibleWords.toSorted(() => Math.random() - 0.5).slice(0, numberWords):
+    possibleWords.toSorted(() => Math.random() - 0.5);
+
+    $element.innerHTML = words.map((word) => 
+            {
+                const letters = word.split('')
+                return `<my-word>${letters.map((letter) => 
+                    `<my-letter>${letter}</my-letter>`)
+                    .join('')}</my-word>`
+            }).join(' ');
+    if (current) {
+        const $firstWord = $element.querySelector('my-word');
+        $firstWord.classList.add('current');
+        $firstWord.querySelector('my-letter').classList.add('current');
+    }
 }
 
-function setOptionActive($toActivate, array, index) {
-    $toActivate.parentElement.querySelector('button.active').classList.remove('active');
-    $toActivate.classList.add('active');
-    array.forEach((value, i) => (i === index) ? value.style = 'active': value.style = null);
-}
-
-function initSettings() {
-    $options.querySelector('button[name="time"]').classList.add('active');
-    setValues(timeValues);
-}
-
-function toggleSettings($setting) {
-    $setting.parentElement.querySelector('.active').classList.remove('active');
-    $setting.classList.add('active');
+function actualizeTime(time) {
+    initial_time = currentTime = time;
+    $time.textContent = currentTime;
 }
 
 //Logic
-initEvents();
+initGameEvents();
 initSettings();
 initGame();
