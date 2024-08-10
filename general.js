@@ -1,5 +1,5 @@
 import {words as INITIAL_WORDS} from './words.js';
-import {timeValues, wordValues, initSettings} from './Settings.js';
+import {timeValues, wordValues, initSettings, $settings} from './Settings.js';
 
 //Get HTML elements
 const $time = document.querySelector('#game>main>time');
@@ -10,7 +10,6 @@ const $result = document.querySelector('#result');
 const $resetButton = document.querySelector('#result>button')
 const $wmp = $result.querySelector('#wpm>span');
 const $accuracy = $result.querySelector('#accuracy>span');
-const $settings = document.querySelector('#settings');
 
 //Game atributes
 let words = [];
@@ -58,11 +57,12 @@ function handleKeyDown(event) {
     event.preventDefault();
     const { key } = event;
 
+    
     if(key !== 'Backspace') return;
     
     const $currentWord = $paragraph.querySelector('my-word.current');
     const $currentLetter = $currentWord.querySelector('my-letter.current');
-
+    
     if($currentLetter.classList.contains('is-last')) {
         $currentLetter.classList.remove('is-last','correct', 'incorrect');
         $currentWord.classList.remove('marked')
@@ -92,10 +92,10 @@ function handleKeyUp(event) {
     const { key } = event;
    
     if (key === 'Backspace') return;
-
+    
     const $currentWord = $paragraph.querySelector('my-word.current');
     const $currentLetter = $currentWord.querySelector('my-letter.current');
-
+    
     if(key === ' ' && $currentLetter.classList.contains('is-last')) {
         $currentLetter.classList.remove('current', 'is-last');
         $currentWord.classList.remove('current');
@@ -146,7 +146,7 @@ function gameOver() {
 
 
 //Web modifiers
-function setRandomText($element, numberWords, possibleWords, current) {
+export function setRandomText($element, numberWords, possibleWords, current) {
     $element.innerHTML = '';
     words = (possibleWords.length >= numberWords) ? 
     possibleWords.toSorted(() => Math.random() - 0.5).slice(0, numberWords):
@@ -166,12 +166,12 @@ function setRandomText($element, numberWords, possibleWords, current) {
     }
 }
 
-function actualizeTime(time) {
+export function actualizeTime(time) {
     initial_time = currentTime = time;
     $time.textContent = currentTime;
 }
 
 //Logic
 initGameEvents();
-initSettings();
+initSettings($paragraph);
 initGame();

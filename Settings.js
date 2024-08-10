@@ -1,5 +1,9 @@
+import {words as INITIAL_WORDS} from './words.js';
+import {setRandomText, actualizeTime} from './general.js'
+
+
 const $options = document.querySelector('#options');
-const $settings = document.querySelector('#settings');
+export const $settings = document.querySelector('#settings');
 const $settingsValues = $settings.querySelector('div[name="values"]');
 const $timeSettings = $options.querySelector('button[name="time"]');
 const $wordsSettings = $options.querySelector('button[name="words"]');
@@ -10,17 +14,17 @@ export let wordValues = [20, 30, 50, 100];
 
 
 //Settings handlers
-export function initSettings() {
+export function initSettings($modifier) {
     $options.querySelector('button[name="time"]').classList.add('active');
     //Add option handlers
     $timeSettings.addEventListener('click', () => setOptionActive($timeSettings));
     $wordsSettings.addEventListener('click', () => setOptionActive($wordsSettings));
-    $settingsValues.appendChild(createWordSelector(wordValues));
+    $settingsValues.appendChild(createWordSelector(wordValues, $modifier));
     $settingsValues.appendChild(createTimeSelector(timeValues));
 
 }
 
-function createWordSelector(values) {
+function createWordSelector(values, $modifier) {
     const $wordSelector = document.createElement('div');
     $wordSelector.setAttribute('name', 'words');
     values.forEach((value, index) => {
@@ -31,7 +35,7 @@ function createWordSelector(values) {
             $elem.addEventListener('click', () => {
                 setValueActive($elem);
                 value = changeCustomValue(values);
-                setRandomText($paragraph, value, INITIAL_WORDS, true);
+                setRandomText($modifier, value, INITIAL_WORDS, true);
             });            
         }
         else {
@@ -39,7 +43,7 @@ function createWordSelector(values) {
             if (index === 0) $elem.classList.add('active');
             $elem.addEventListener('click', () => {
                 setValueActive($elem);
-                setRandomText($paragraph, value, INITIAL_WORDS, true);
+                setRandomText($modifier, value, INITIAL_WORDS, true);
             });            
         }
         $wordSelector.appendChild($elem);
