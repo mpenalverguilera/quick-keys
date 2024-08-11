@@ -1,7 +1,8 @@
 import {words as INITIAL_WORDS} from './words.js';
-import {setRandomText, actualizeTime} from './general.js'
+import {setRandomText} from './general.js'
+import {actualizeTime} from './Game.js';
 
-
+//Get HTML elements
 const $options = document.querySelector('#options');
 export const $settings = document.querySelector('#settings');
 const $settingsValues = $settings.querySelector('div[name="values"]');
