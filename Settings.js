@@ -1,6 +1,6 @@
 import {words as INITIAL_WORDS} from './words.js';
 import {setRandomText} from './general.js'
-import {actualizeTime} from './Game.js';
+import {$paragraph, actualizeTime} from './Game.js';
 
 //Get HTML elements
 const $options = document.querySelector('#options');
@@ -35,8 +35,8 @@ function createWordSelector(values, $modifier) {
             $elem.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i>';
             $elem.addEventListener('click', () => {
                 setValueActive($elem);
-                value = changeCustomValue(values);
-                setRandomText($modifier, value, INITIAL_WORDS, true);
+                value = changeCustomValue();
+                setRandomText($paragraph, value, INITIAL_WORDS, true);
             });            
         }
         else {
@@ -63,7 +63,7 @@ function createTimeSelector(values) {
             $elem.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i>';
             $elem.addEventListener('click', () => {
                 setValueActive($elem);
-                value = changeCustomValue(values);
+                value = changeCustomValue();
                 actualizeTime(value);
             });            
         }
@@ -80,13 +80,6 @@ function createTimeSelector(values) {
     return $timeSelector;
 }
 
-function changeCustomValue(array) {
-    const newValue = prompt('Enter a new value');
-    if (newValue === null) return 0;
-    array[array.length - 1] = newValue;
-    return newValue;
-}
-
 function setOptionActive($toActivate) {
     setValueActive($toActivate);
     $settingsValues.querySelectorAll('div').forEach((div) => div.style.display = 'none');
@@ -97,4 +90,8 @@ function setValueActive($toActivate) {
     const $active = $toActivate.parentElement.querySelector('button.active')
     if ($active !== null) $active.classList.remove('active');
     $toActivate.classList.add('active');
+}
+
+function changeCustomValue() {
+    return prompt("Set your custom value: ")
 }
